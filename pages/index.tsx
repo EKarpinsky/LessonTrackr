@@ -1,4 +1,4 @@
-import { ChangeEvent, CSSProperties, FormEvent, MouseEventHandler, useEffect, useState } from "react";
+import { ChangeEvent, CSSProperties, FormEvent, useCallback, useEffect, useState } from "react";
 import { LessonData, Students, AvailableLengths } from "../common/types";
 
 // styles to make the tables look like cards
@@ -47,7 +47,7 @@ export default function Home() {
    const [length, setLength] = useState<AvailableLengths>(30);
    const [date, setDate] = useState<string>(new Date().toISOString().slice(0, 10));
    const [errorMessage, setErrorMessage] = useState<string>('');
-   const [lessonToDelete, setLessonToDelete] = useState<LessonData>({ student: '', length: 0, date: '' });
+   const [lessonToDelete, setLessonToDelete] = useState<LessonData | null>(null);
 
    // update the csv with the new lesson and download
    const handleSubmit = async (e: FormEvent) => {
@@ -89,22 +89,6 @@ export default function Home() {
       }
    }
 
-   const deleteLesson = async () => {
-      if (!lessonToDelete.student || !lessonToDelete.length || !lessonToDelete.date) {
-         setErrorMessage('Please select a lesson to delete!');
-         return;
-      }
-      const res = await fetch('/api/delete-lesson', {
-         method: 'DELETE',
-         headers: {
-            'Content-Type': 'application/json'
-         },
-         body: JSON.stringify(lessonToDelete)
-      });
-      const data = await res.json();
-      setLessons(data);
-   };
-
    // load existing csv file on mount
    useEffect(() => {
       fetch('/api/lessons')
@@ -118,15 +102,25 @@ export default function Home() {
 
    // delete useEffect
    useEffect(() => {
-      if (lessonToDelete.student && lessonToDelete.length && lessonToDelete.date) {
-         deleteLesson().then(() => setLessonToDelete({
+      // if null return
+      if (!lessonToDelete || !(lessonToDelete.student && lessonToDelete.length && lessonToDelete.date)) {
+         return;
+      }
+      fetch('/api/delete-lesson', {
+         method: 'DELETE',
+         headers: {
+            'Content-Type': 'application/json'
+         },
+         body: JSON.stringify(lessonToDelete)
+      }).then(res => res.json()).then(data => {
+         setLessons(data);
+         setLessonToDelete({
             student: '',
             length: 0,
             date: ''
-         })).catch(err => console.log(err));
-      }
+         });
+      }).catch(err => console.log(err));
    }, [lessonToDelete]);
-
 
    return (
        <div className='App'>
