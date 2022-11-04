@@ -1,4 +1,4 @@
-import { ChangeEvent, CSSProperties, FormEvent, useCallback, useEffect, useState } from "react";
+import { ChangeEvent, CSSProperties, FormEvent, useEffect, useState } from "react";
 import { LessonData, Students, AvailableLengths } from "../common/types";
 
 // styles to make the tables look like cards
@@ -17,6 +17,86 @@ const styles: { [key: string]: CSSProperties } = {
       padding: '16px',
       border: '1px solid #ddd',
    },
+}
+
+type StudentProps = {
+   key: string;
+   student: Students;
+   lessons: LessonData[];
+   setLessonToDelete: (lesson: LessonData) => void;
+}
+
+const Student = ({ key, student, lessons, setLessonToDelete }: StudentProps) => {
+   return (<div key={key} style={{
+      width: '50%',
+      margin: '0 auto',
+      padding: '20px',
+      border: '1px solid #ddd',
+      borderRadius: '5px',
+   }}>
+      <h2>{student}</h2>
+      <table style={
+         styles.table
+      }>
+         <thead>
+         <tr>
+            <th style={
+               styles.th
+            }>Date
+            </th>
+            <th style={
+               styles.th
+            }>Length
+            </th>
+            <th style={
+               styles.th
+            }>Price
+            </th>
+            <th style={
+               styles.th
+            }>Delete
+            </th>
+         </tr>
+         </thead>
+         <tbody>
+         {lessons.filter(lesson => lesson.student === student).map((lesson, index) => {
+            return <tr key={index}>
+               <td style={
+                  styles.td
+               }>{lesson.date}</td>
+               <td style={
+                  styles.td
+               }>{lesson.length}</td>
+               {/*price is 50/h. if 45 round down to 35*/}
+               <td style={
+                  styles.td
+               }>${lesson.length === 45 ? 35 : lesson.length * 50 / 60}</td>
+               <td style={
+                  styles.td
+               }>
+                  <button onClick={async () => {
+                     setLessonToDelete(lesson);
+                  }} value={JSON.stringify(lesson)}>Delete
+                  </button>
+               </td>
+            </tr>;
+         })}
+         {/*if no lessons*/}
+         {lessons.filter(lesson => lesson.student === student).length === 0 && <tr>
+             <td style={
+                styles.td
+             } colSpan={4}>No lessons
+             </td>
+         </tr>}
+         </tbody>
+      </table>
+      <h3>Total: ${getTotalAmountForStudent(lessons, student)}</h3>
+      {/*a button to copy text that says how many lessons the student had and the total amount*/}
+      <button onClick={() => {
+         navigator.clipboard.writeText(getTotalAmountText(student, lessons, getTotalAmountForStudent(lessons, student))).then(r => console.log(r)).catch(err => console.log(err));
+      }}>Copy
+      </button>
+   </div>)
 }
 
 const STUDENTS: Array<{ name: Students, defaultLength: AvailableLengths }> = [
@@ -167,76 +247,8 @@ export default function Home() {
              </form>
              {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
           </div>
-          {STUDENTS.map(student => <div key={student.name} style={{
-             width: '50%',
-             margin: '0 auto',
-             padding: '20px',
-             border: '1px solid #ddd',
-             borderRadius: '5px',
-          }}>
-             <h2>{student.name}</h2>
-             <table style={
-                styles.table
-             }>
-                <thead>
-                <tr>
-                   <th style={
-                      styles.th
-                   }>Date
-                   </th>
-                   <th style={
-                      styles.th
-                   }>Length
-                   </th>
-                   <th style={
-                      styles.th
-                   }>Price
-                   </th>
-                   <th style={
-                      styles.th
-                   }>Delete
-                   </th>
-                </tr>
-                </thead>
-                <tbody>
-                {lessons.filter(lesson => lesson.student === student.name).map((lesson, index) => {
-                   return <tr key={index}>
-                      <td style={
-                         styles.td
-                      }>{lesson.date}</td>
-                      <td style={
-                         styles.td
-                      }>{lesson.length}</td>
-                      {/*price is 50/h. if 45 round down to 35*/}
-                      <td style={
-                         styles.td
-                      }>${lesson.length === 45 ? 35 : lesson.length * 50 / 60}</td>
-                      <td style={
-                         styles.td
-                      }>
-                         <button onClick={async () => {
-                            setLessonToDelete(lesson);
-                         }} value={JSON.stringify(lesson)}>Delete
-                         </button>
-                      </td>
-                   </tr>;
-                })}
-                {/*if no lessons*/}
-                {lessons.filter(lesson => lesson.student === student.name).length === 0 && <tr>
-                    <td style={
-                       styles.td
-                    } colSpan={4}>No lessons
-                    </td>
-                </tr>}
-                </tbody>
-             </table>
-             <h3>Total: ${getTotalAmountForStudent(lessons, student.name)}</h3>
-             {/*a button to copy text that says how many lessons the student had and the total amount*/}
-             <button onClick={() => {
-                navigator.clipboard.writeText(getTotalAmountText(student.name, lessons, getTotalAmountForStudent(lessons, student.name))).then(r => console.log(r)).catch(err => console.log(err));
-             }}>Copy
-             </button>
-          </div>)}
+          {STUDENTS.map(student => <Student key={student.name} student={student.name} lessons={lessons}
+                                            setLessonToDelete={setLessonToDelete}/>)}
        </div>
 
    )
