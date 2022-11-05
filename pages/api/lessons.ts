@@ -17,11 +17,11 @@ export const fetchAllLessons = (): LessonData[] => {
    const lines = csv.split(`\r\n`);
    for (let i = 1; i < lines.length; i++) {
       const line = lines[i];
-      const [date, student, length] = line.split(',');
-      if (!date || !student || !length) {
+      const [date, student, length, isInPerson] = line.split(',');
+      if (!date || !student || !length || !isInPerson) {
          continue;
       }
-      lessons.push({ student, length: parseInt(length), date } as LessonData);
+      lessons.push({ student, length: parseInt(length), date, isInPerson: isInPerson === "true" } as LessonData);
    }
    // order by date from oldest to newest
    lessons.sort((a, b) => {

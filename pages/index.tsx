@@ -1,105 +1,21 @@
-import { ChangeEvent, CSSProperties, FormEvent, useEffect, useState } from "react";
-import { LessonData, Students, AvailableLengths } from "../common/types";
+import { useEffect, useState } from "react";
+import { LessonData, StudentList } from "../common/types";
+import { Student } from "../common/components/Student/Student";
 
-// styles to make the tables look like cards
-const styles: { [key: string]: CSSProperties } = {
-   table: {
-      borderCollapse: 'collapse',
-      margin: '0 auto',
-      width: '50%',
-      border: '1px solid #ddd',
-      textAlign: 'left',
-   },
-   th: {
-      padding: '16px',
-   },
-   td: {
-      padding: '16px',
-      border: '1px solid #ddd',
-   },
-}
+import { Form } from "../common/components/Form/Form";
+/** @jsxImportSource @emotion/react */
+import { css } from "@emotion/react";
+import { getTotalForMonth } from "../common/utils/calc";
 
-type StudentProps = {
-   key: string;
-   student: Students;
-   lessons: LessonData[];
-   setLessonToDelete: (lesson: LessonData) => void;
-}
+const headerStyle = css`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color: white;
+`;
 
-const Student = ({ key, student, lessons, setLessonToDelete }: StudentProps) => {
-   return (<div key={key} style={{
-      width: '50%',
-      margin: '0 auto',
-      padding: '20px',
-      border: '1px solid #ddd',
-      borderRadius: '5px',
-   }}>
-      <h2>{student}</h2>
-      <table style={
-         styles.table
-      }>
-         <thead>
-         <tr>
-            <th style={
-               styles.th
-            }>Date
-            </th>
-            <th style={
-               styles.th
-            }>Length
-            </th>
-            <th style={
-               styles.th
-            }>Price
-            </th>
-            <th style={
-               styles.th
-            }>Delete
-            </th>
-         </tr>
-         </thead>
-         <tbody>
-         {lessons.filter(lesson => lesson.student === student).map((lesson, index) => {
-            return <tr key={index}>
-               <td style={
-                  styles.td
-               }>{lesson.date}</td>
-               <td style={
-                  styles.td
-               }>{lesson.length}</td>
-               {/*price is 50/h. if 45 round down to 35*/}
-               <td style={
-                  styles.td
-               }>${lesson.length === 45 ? 35 : lesson.length * 50 / 60}</td>
-               <td style={
-                  styles.td
-               }>
-                  <button onClick={async () => {
-                     setLessonToDelete(lesson);
-                  }} value={JSON.stringify(lesson)}>Delete
-                  </button>
-               </td>
-            </tr>;
-         })}
-         {/*if no lessons*/}
-         {lessons.filter(lesson => lesson.student === student).length === 0 && <tr>
-             <td style={
-                styles.td
-             } colSpan={4}>No lessons
-             </td>
-         </tr>}
-         </tbody>
-      </table>
-      <h3>Total: ${getTotalAmountForStudent(lessons, student)}</h3>
-      {/*a button to copy text that says how many lessons the student had and the total amount*/}
-      <button onClick={() => {
-         navigator.clipboard.writeText(getTotalAmountText(student, lessons, getTotalAmountForStudent(lessons, student))).then(r => console.log(r)).catch(err => console.log(err));
-      }}>Copy
-      </button>
-   </div>)
-}
-
-const STUDENTS: Array<{ name: Students, defaultLength: AvailableLengths }> = [
+const STUDENTS: StudentList = [
    {
       name: 'Mori',
       defaultLength: 60
@@ -115,58 +31,11 @@ const STUDENTS: Array<{ name: Students, defaultLength: AvailableLengths }> = [
    }
 ]
 
-const AVAILABLE_LENGTHS: AvailableLengths[] = [30, 45, 60, 90, 120];
-
-const getTotalAmountText = (student: Students, lessons: LessonData[], total: number) => `Hello! In ${new Date().toLocaleString('default', { month: 'long' })}, we had ${lessons.filter(lesson => lesson.student === student).length} lesson${lessons.filter(lesson => lesson.student === student).length === 1 ? '' : 's'} for a total of $${total}`;
-
-const getTotalAmountForStudent = (lessons: LessonData[], student: Students) => lessons.filter(lesson => lesson.student === student).reduce((acc, lesson) => acc + (lesson.length === 45 ? 35 : lesson.length * 50 / 60), 0);
-
-export default function Home() {
+const Home = () => {
    const [lessons, setLessons] = useState<LessonData[]>([]);
-   const [student, setStudent] = useState<Students>('');
-   const [length, setLength] = useState<AvailableLengths>(30);
-   const [date, setDate] = useState<string>(new Date().toISOString().slice(0, 10));
-   const [errorMessage, setErrorMessage] = useState<string>('');
-   const [lessonToDelete, setLessonToDelete] = useState<LessonData | null>(null);
 
-   // update the csv with the new lesson and download
-   const handleSubmit = async (e: FormEvent) => {
-      e.preventDefault();
-      const newLesson: LessonData = {
-         student,
-         length,
-         date
-      }
-      // don't allow multiple lessons per day PER SAME STUDENT
-      if (lessons.some(lesson => lesson.student === student && lesson.date === date)) {
-         setErrorMessage('You already have a lesson scheduled for this day!');
-         return;
-      }
-      if (!student || !length || !date) {
-         setErrorMessage('Please fill out all fields!');
-         return;
-      }
-      // add the new lesson to the lessons array using epi endpoint
-      const res = await fetch('/api/add-lesson', {
-         method: 'POST',
-         headers: {
-            'Content-Type': 'application/json'
-         },
-
-         body: JSON.stringify(newLesson)
-      });
-      const data = await res.json();
-      setLessons(data);
-      setErrorMessage('');
-   }
-
-   const onStudentSelect = (e: ChangeEvent<HTMLSelectElement>) => {
-      const target = e.target;
-      setStudent(target.value as Students);
-      const defaultLength = STUDENTS.find(s => s.name === target.value)?.defaultLength;
-      if (defaultLength) {
-         setLength(defaultLength);
-      }
+   const onLessonChange = (lessons: LessonData[]) => {
+      setLessons(lessons);
    }
 
    // load existing csv file on mount
@@ -180,36 +49,16 @@ export default function Home() {
           .catch(err => console.log(err));
    }, []);
 
-   // delete useEffect
-   useEffect(() => {
-      // if null return
-      if (!lessonToDelete || !(lessonToDelete.student && lessonToDelete.length && lessonToDelete.date)) {
-         return;
-      }
-      fetch('/api/delete-lesson', {
-         method: 'DELETE',
-         headers: {
-            'Content-Type': 'application/json'
-         },
-         body: JSON.stringify(lessonToDelete)
-      }).then(res => res.json()).then(data => {
-         setLessons(data);
-         setLessonToDelete({
-            student: '',
-            length: 0,
-            date: ''
-         });
-      }).catch(err => console.log(err));
-   }, [lessonToDelete]);
-
    return (
        <div className='App'>
-          <h1>Lesson Tracker</h1>
-          <h2>Month: {
-             new Date().toLocaleString('default', {
-                month: 'long'
-             })
-          }</h2>
+          <header css={headerStyle}>
+             <h1>Lesson Tracker</h1>
+             <h2>Month: {
+                new Date().toLocaleString('default', {
+                   month: 'long'
+                })
+             }</h2>
+          </header>
           <div style={{
              width: '50%',
              margin: '0 auto',
@@ -217,39 +66,26 @@ export default function Home() {
              border: '1px solid #ddd',
              borderRadius: '5px',
           }}>
-             <form onSubmit={handleSubmit} style={
-                {
-                   display: 'flex',
-                   flexDirection: 'column',
-                   alignItems: 'center',
-                }
-             }>
-                <label>
-                   Student:
-                   <select value={student} onChange={onStudentSelect}>
-                      <option value=''>Select a student</option>
-                      {STUDENTS.map(student => <option key={student.name}
-                                                       value={student.name}>{student.name}</option>)}
-                   </select>
-                </label>
-                <label>
-                   Length:
-                   <select value={length}
-                           onChange={(e: ChangeEvent<HTMLSelectElement>) => setLength(parseInt(e.target.value) as AvailableLengths)}>
-                      {AVAILABLE_LENGTHS.map(length => <option key={length} value={length}>{length}</option>)}
-                   </select>
-                </label>
-                <label>
-                   Date:
-                   <input type='date' value={date} onChange={e => setDate(e.target.value)}/>
-                </label>
-                <input type='submit' value='Submit Lesson'/>
-             </form>
-             {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+             <Form onLessonSubmit={onLessonChange} students={STUDENTS} lessons={lessons}/>
           </div>
           {STUDENTS.map(student => <Student key={student.name} student={student.name} lessons={lessons}
-                                            setLessonToDelete={setLessonToDelete}/>)}
-       </div>
+                                            onLessonDelete={onLessonChange}/>)}
 
-   )
-}
+          {/*   total for month. use emotion instead of inline style */}
+          <div css={css`
+            width: 50%;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+          `}>
+             <h2>Total for Month</h2>
+             <div>
+             {/*    return all students totaled together for grand total of month*/}
+                ${getTotalForMonth(lessons, STUDENTS)}
+             </div>
+          </div>
+       </div>);
+};
+export default Home

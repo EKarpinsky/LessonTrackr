@@ -13,7 +13,7 @@ export const writeLessons = (allLessons: LessonData[]): void => {
    const date = new Date();
    const month = date.getMonth() + 1;
    const year = date.getFullYear();
-   const csvWithHeading = `date,student,length\r\n${allLessons.map(lesson => `${lesson.date},${lesson.student},${lesson.length}`).join(`\r\n`)}`;
+   const csvWithHeading = `date,student,length,inperson\r\n${allLessons.map(lesson => `${lesson.date},${lesson.student},${lesson.length},${lesson.isInPerson}`).join(`\r\n`)}`;
    fs.writeFileSync(path.join(process.cwd(), "common", "data", `${month}-${year}-lessons.csv`), csvWithHeading, "utf8");
 };
 
