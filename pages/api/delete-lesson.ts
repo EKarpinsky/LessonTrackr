@@ -1,7 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { LessonData } from "../../common/types";
-import fs from "fs";
-import path from "path";
 import { fetchAllLessons } from "./lessons";
 import { writeLessons } from "./add-lesson";
 

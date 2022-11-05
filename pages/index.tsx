@@ -4,7 +4,7 @@ import { Student } from "../common/components/Student/Student";
 
 import { Form } from "../common/components/Form/Form";
 /** @jsxImportSource @emotion/react */
-import { css } from "@emotion/react";
+import { css } from '@emotion/react'
 import { getTotalForMonth } from "../common/utils/calc";
 
 const headerStyle = css`

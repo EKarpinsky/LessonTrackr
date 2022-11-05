@@ -1,5 +1,5 @@
 // the form component
-import React, { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useState } from 'react';
 import { AvailableLengths, LessonData, StudentList, StudentNames } from "../../types";
 /** @jsxImportSource @emotion/react */
 import { form, inPersonDiv } from "./styles";
