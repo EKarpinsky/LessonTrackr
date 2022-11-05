@@ -1,6 +1,7 @@
 import { LessonData, StudentNames } from "../../types";
 /** @jsxImportSource @emotion/react */
 import * as styles from './styles';
+import { getTotalAmountForStudent } from "../../utils/calc";
 
 type StudentProps = {
    key: string;
@@ -10,8 +11,6 @@ type StudentProps = {
 }
 
 const getTotalAmountText = (student: StudentNames, lessons: LessonData[], total: number) => `Hello! In ${new Date().toLocaleString('default', { month: 'long' })}, we had ${lessons.filter(lesson => lesson.student === student).length} lesson${lessons.filter(lesson => lesson.student === student).length === 1 ? '' : 's'} for a total of $${total}`;
-
-const getTotalAmountForStudent = (lessons: LessonData[], student: StudentNames) => lessons.filter(lesson => lesson.student === student).reduce((acc, lesson) => acc + (lesson.length === 45 ? 35 : lesson.length * 50 / 60), 0);
 
 /**
  * Lessons are $60/hour in person. otherwise, $50/h but $35 for 45 minutes
