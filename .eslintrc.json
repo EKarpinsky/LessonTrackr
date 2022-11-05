@@ -7,11 +7,27 @@
   "plugins": [
     "@typescript-eslint",
     "react",
-    "@emotion"
+    "@emotion",
+    "@next/eslint-plugin-next"
   ],
   "rules": {
-    "react/react-in-jsx-scope": "off",
-    "react/no-unknown-property": ["error", { "ignore": ["css"] }]
+    "react/no-unknown-property": [
+      "error", { "ignore": [
+        "css"
+      ] }],
+    "react/button-has-type": 2,
+    "react/jsx-uses-react": 2,
+    "react/jsx-uses-vars": 2,
+    "react/jsx-no-undef": 2,
+    "react/jsx-no-duplicate-props": 2,
+    "react/jsx-no-target-blank": 2,
+    "react/jsx-no-comment-textnodes": 2,
+    // emotion stuff
+    "@emotion/pkg-renaming": "error",
+    "@emotion/no-vanilla": "error",
+    "@emotion/import-from-emotion": "error",
+    "@emotion/styled-import": "error",
+    "@emotion/syntax-preference": ["error", "string"]
   },
   "globals": {
     "React": "writable"

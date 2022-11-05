@@ -2,12 +2,13 @@ import { LessonData, StudentNames } from "../../types";
 /** @jsxImportSource @emotion/react */
 import * as styles from './styles';
 import { getTotalAmountForStudent } from "../../utils/calc";
+import { useEffect, useLayoutEffect } from "react";
 
 type StudentProps = {
-   key: string;
    student: StudentNames;
    lessons: LessonData[];
    onLessonDelete: (lessons: LessonData[]) => void;
+   lessonIdOfAddedLesson?: string;
 }
 
 const getTotalAmountText = (student: StudentNames, lessons: LessonData[], total: number) => `Hello! In ${new Date().toLocaleString('default', { month: 'long' })}, we had ${lessons.filter(lesson => lesson.student === student).length} lesson${lessons.filter(lesson => lesson.student === student).length === 1 ? '' : 's'} for a total of $${total}`;
@@ -30,28 +31,27 @@ const getLessonCost = (lesson: LessonData) => {
 };
 
 
-export const Student = ({ key, student, lessons, onLessonDelete }: StudentProps) => {
+export const Student = ({ student, lessons, onLessonDelete, lessonIdOfAddedLesson }: StudentProps) => {
 
-   const handleDelete = async (lesson: LessonData) => {
-      const res = await fetch('/api/delete-lesson', {
-         method: 'DELETE',
-         headers: {
-            'Content-Type': 'application/json'
-         },
-         body: JSON.stringify(lesson)
-      });
-      const data = await res.json();
-      onLessonDelete(data);
+   const handleDelete = async (lesson: LessonData, tr: HTMLTableRowElement) => {
+      tr.style.transition = 'all 1s ease-in-out';
+      tr.style.transform = 'translateY(-100%)';
+      tr.style.opacity = '0';
+      setTimeout(async () => {
+         const res = await fetch('/api/delete-lesson', {
+            method: 'DELETE',
+            headers: {
+               'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(lesson)
+         });
+         const data = await res.json();
+         onLessonDelete(data);
+      }, 1000);
    }
 
    return (
-       <div key={key} style={{
-          width: '50%',
-          margin: '0 auto',
-          padding: '20px',
-          border: '1px solid #ddd',
-          borderRadius: '5px',
-       }}>
+       <div css={styles.studentContainer}>
           <h2>{student}</h2>
           <table css={styles.table}>
              <thead>
@@ -65,7 +65,12 @@ export const Student = ({ key, student, lessons, onLessonDelete }: StudentProps)
              </thead>
              <tbody>
              {lessons.filter(lesson => lesson.student === student).map((lesson, index) => {
-                return <tr key={index}>
+                const lessonIdForRow = lesson.date.split('-').join('') + '-' + student;
+                return <tr key={index} id={lessonIdForRow} css={
+                   lessonIdForRow === lessonIdOfAddedLesson
+                       ? styles.lastLessonRow
+                       : null
+                }>
                    <td>{lesson.date}
                    </td>
                    <td>{lesson.length}</td>
@@ -73,7 +78,8 @@ export const Student = ({ key, student, lessons, onLessonDelete }: StudentProps)
                    <td>{lesson.isInPerson ? 'Yes' : 'No'}</td>
                    <td css={styles.deleteCell}>
                       <button onClick={async () => {
-                         await handleDelete(lesson);
+                         const tr = document.getElementById(lessonIdForRow) as HTMLTableRowElement;
+                         await handleDelete(lesson, tr);
                       }} value={JSON.stringify(lesson)}>Delete
                       </button>
                    </td>

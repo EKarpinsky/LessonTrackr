@@ -89,6 +89,12 @@ export const form = css`
   border-radius: 5px;
   margin: 0 auto;
   width: 50%;
+  
+  //ipad max-width
+  @media (max-width: 1024px) {
+    width: 100%;
+    grid-template-columns: 1fr;
+  }
 
   label {
     display: block;

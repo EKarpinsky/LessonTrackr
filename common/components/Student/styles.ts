@@ -1,5 +1,24 @@
 import { css } from "@emotion/react";
 
+export const lastLessonRow = css`
+  opacity: 0;
+  transform: translateY(-100%);
+`;
+
+
+export const studentContainer = css`
+  width: 50%;
+  margin: 10px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  transition: all 0.3s ease-in-out;
+
+  @media (max-width: 1024px) {
+    width: 100%;
+  }
+`
+
 export const table = css`
   border-collapse: collapse;
   width: 100%;
@@ -8,9 +27,16 @@ export const table = css`
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
   margin: 25px 0;
   font-size: 0.9em;
-  min-width: 400px;
   table-layout: fixed;
   color: #ffffff;
+
+  @media (max-width: 768px) {
+    font-size: 0.8em;
+
+    th, td {
+      padding: 12px 15px;
+    }
+  }
 
   th, td {
     padding: 12px 15px;
@@ -25,7 +51,6 @@ export const table = css`
 
   tr {
     background-color: #333;
-    border-bottom: 1px solid #dddddd;
 
     &:nth-of-type(even) {
       background-color: #444;
@@ -47,35 +72,14 @@ export const table = css`
     @media (max-width: 768px) {
       padding-left: 10px;
     }
-
-    &:first-child {
-      @media (max-width: 768px) {
-        padding-left: 0;
-      }
-    }
-
-    &:last-child {
-      @media (max-width: 768px) {
-        padding-right: 0;
-      }
-    }
   }
 
   td {
     text-align: left;
+    min-width: fit-content;
 
     @media (max-width: 768px) {
       padding-left: 10px;
-
-      &:first-child {
-        padding-left: 0;
-      }
-    }
-
-    &:last-child {
-      @media (max-width: 768px) {
-        padding-right: 0;
-      }
     }
   }
 
@@ -93,7 +97,12 @@ export const deleteCell = css`
     text-decoration: none;
     display: inline-block;
     font-size: 16px;
-    margin: 4px 2px;
     cursor: pointer;
+
+    @media (max-width: 768px) {
+      padding: 3px 5px;
+      width: 100%;
+      font-size: 12px;
+    }
   }
 `
