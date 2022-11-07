@@ -12,7 +12,7 @@ export const studentContainer = css`
   padding: 20px;
   border: 1px solid #ddd;
   border-radius: 5px;
-  transition: all 0.3s ease-in-out;
+  background-color: #6184b4;
 
   @media (max-width: 1024px) {
     width: 100%;
@@ -41,7 +41,7 @@ export const table = css`
   th, td {
     padding: 12px 15px;
 
-    &:first-child {
+    &:first-of-type {
       padding-left: 20px;
       @media (max-width: 768px) {
         padding-left: 10px;
@@ -63,7 +63,7 @@ export const table = css`
 
   th {
     // background colour should be a warm dark colour with green/blue tones
-    background-color: #5d7240;
+    background-color: #40581c;
 
     color: #ffffff;
     text-align: left;

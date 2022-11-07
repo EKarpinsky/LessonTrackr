@@ -34,7 +34,7 @@ const getLessonCost = (lesson: LessonData) => {
 export const Student = ({ student, lessons, onLessonDelete, lessonIdOfAddedLesson }: StudentProps) => {
 
    const handleDelete = async (lesson: LessonData, tr: HTMLTableRowElement) => {
-      tr.style.transition = 'all 1s ease-in-out';
+      tr.style.transition = 'all 0.5s ease-in-out';
       tr.style.transform = 'translateY(-100%)';
       tr.style.opacity = '0';
       setTimeout(async () => {
@@ -47,7 +47,7 @@ export const Student = ({ student, lessons, onLessonDelete, lessonIdOfAddedLesso
          });
          const data = await res.json();
          onLessonDelete(data);
-      }, 1000);
+      }, 500);
    }
 
    return (

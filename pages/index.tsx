@@ -71,12 +71,14 @@ const Home = () => {
 
       if (lastLessonRow) {
          if (lessonWasAdded) {
-            lastLessonRow.style.transition = 'all 1s ease-in-out';
+            lastLessonRow.style.transition = 'all 0.5s ease-in-out';
             setLessonWasAdded(false);
          }
+         lastLessonRow.className = '';
          lastLessonRow.style.transform = 'translateY(0)';
          lastLessonRow.style.opacity = '1';
       }
+      setLessonIdOfAddedLesson('');
 
    }, [lessons]);
 
@@ -109,7 +111,8 @@ const Home = () => {
              <Form onLessonSubmit={onLessonChange} students={STUDENTS} lessons={lessons}/>
           </div>
           {STUDENTS.map(student => <Student key={student.name} student={student.name} lessons={lessons}
-                                            onLessonDelete={onLessonChange} lessonIdOfAddedLesson={lessonIdOfAddedLesson}/>)}
+                                            onLessonDelete={onLessonChange}
+                                            lessonIdOfAddedLesson={lessonIdOfAddedLesson}/>)}
 
           {/*   total for month. use emotion instead of inline style */}
           <div css={css`
