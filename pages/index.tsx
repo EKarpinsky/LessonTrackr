@@ -35,6 +35,7 @@ const Home = () => {
    const [lessons, setLessons] = useState<LessonData[]>([]);
    const [lessonWasAdded, setLessonWasAdded] = useState<boolean>(false);
    const [lessonIdOfAddedLesson, setLessonIdOfAddedLesson] = useState<string>('');
+   const [isInvoiceMode, setIsInvoiceMode] = useState<boolean>(false);
 
    const onLessonChange = (newLessons: LessonData[]) => {
       if (newLessons.length > 0 && newLessons.length > lessons.length) {
@@ -109,10 +110,24 @@ const Home = () => {
             }
           `}>
              <Form onLessonSubmit={onLessonChange} students={STUDENTS} lessons={lessons}/>
+          {/*   checkbox for invoice mode */}
+                <div css={css`
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  margin: 10px;
+                `}>
+                    <label css={css`
+                        margin-right: 10px;
+                    `}>Invoice Mode</label>
+                    <input type="checkbox" checked={isInvoiceMode} onChange={() => setIsInvoiceMode(!isInvoiceMode)}/>
+                </div>
+
           </div>
           {STUDENTS.map(student => <Student key={student.name} student={student.name} lessons={lessons}
                                             onLessonDelete={onLessonChange}
-                                            lessonIdOfAddedLesson={lessonIdOfAddedLesson}/>)}
+                                            lessonIdOfAddedLesson={lessonIdOfAddedLesson}
+          isInvoiceMode={isInvoiceMode}/>)}
 
           {/*   total for month. use emotion instead of inline style */}
           <div css={css`

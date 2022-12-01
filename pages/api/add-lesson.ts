@@ -14,13 +14,17 @@ export const writeLessons = (allLessons: LessonData[]): void => {
    const month = date.getMonth() + 1;
    const year = date.getFullYear();
    const csvWithHeading = `date,student,length,inperson\r\n${allLessons.map(lesson => `${lesson.date},${lesson.student},${lesson.length},${lesson.isInPerson}`).join(`\r\n`)}`;
-   fs.writeFileSync(path.join(process.cwd(), "common", "data", `${month}-${year}-lessons.csv`), csvWithHeading, "utf8");
+   fs.writeFile(path.join(process.cwd(), "common", "data", `${month}-${year}-lessons.csv`), csvWithHeading, "utf8", (err) => {
+      if (err) {
+         console.log(err);
+      }
+   });
 };
 
 /**
  * Post path for adding a lesson to the lessons.csv file
  */
-export default function handler(
+export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse<LessonData[] | Error>
 ) {
@@ -34,7 +38,7 @@ export default function handler(
          return;
       }
       // fetch allLessons from csv file located in data/lessons.csv
-      const allLessons = fetchAllLessons();
+      const allLessons = await fetchAllLessons();
       if (!allLessons) {
          res.status(500).json(new Error("Could not fetch lessons"));
          return;

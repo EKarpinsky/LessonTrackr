@@ -9,9 +9,10 @@ type StudentProps = {
    lessons: LessonData[];
    onLessonDelete: (lessons: LessonData[]) => void;
    lessonIdOfAddedLesson?: string;
+   isInvoiceMode: boolean;
 }
 
-const getTotalAmountText = (student: StudentNames, lessons: LessonData[], total: number) => `Hello! In ${new Date().toLocaleString('default', { month: 'long' })}, we had ${lessons.filter(lesson => lesson.student === student).length} lesson${lessons.filter(lesson => lesson.student === student).length === 1 ? '' : 's'} for a total of $${total}`;
+const getTotalAmountText = (student: StudentNames, lessons: LessonData[], total: number) => `Hello! In ${new Date().toLocaleString('default', { month: 'long' })}, we had ${lessons.filter(lesson => lesson.student === student).length} lesson${lessons.filter(lesson => lesson.student === student).length === 1 ? '' : 's'} for a total of $${total}, you can etransfer at your convenience, thank you!`;
 
 /**
  * Lessons are $60/hour in person. otherwise, $50/h but $35 for 45 minutes
@@ -31,7 +32,7 @@ const getLessonCost = (lesson: LessonData) => {
 };
 
 
-export const Student = ({ student, lessons, onLessonDelete, lessonIdOfAddedLesson }: StudentProps) => {
+export const Student = ({ student, lessons, onLessonDelete, lessonIdOfAddedLesson, isInvoiceMode }: StudentProps) => {
 
    const handleDelete = async (lesson: LessonData, tr: HTMLTableRowElement) => {
       tr.style.transition = 'all 0.5s ease-in-out';
@@ -59,8 +60,12 @@ export const Student = ({ student, lessons, onLessonDelete, lessonIdOfAddedLesso
                 <th>Date</th>
                 <th>Length</th>
                 <th>Price</th>
-                <th>In Person</th>
-                <th>Delete</th>
+                {!isInvoiceMode &&
+                    <>
+                        <th>In Person</th>
+                        <th>Delete</th>
+                    </>
+                }
              </tr>
              </thead>
              <tbody>
@@ -75,14 +80,18 @@ export const Student = ({ student, lessons, onLessonDelete, lessonIdOfAddedLesso
                    </td>
                    <td>{lesson.length}</td>
                    <td>${getLessonCost(lesson)}</td>
-                   <td>{lesson.isInPerson ? 'Yes' : 'No'}</td>
-                   <td css={styles.deleteCell}>
-                      <button onClick={async () => {
-                         const tr = document.getElementById(lessonIdForRow) as HTMLTableRowElement;
-                         await handleDelete(lesson, tr);
-                      }} value={JSON.stringify(lesson)}>Delete
-                      </button>
-                   </td>
+                   {!isInvoiceMode &&
+                       <>
+                           <td>{lesson.isInPerson ? 'Yes' : 'No'}</td>
+                           <td css={styles.deleteCell}>
+                               <button onClick={async () => {
+                                  const tr = document.getElementById(lessonIdForRow) as HTMLTableRowElement;
+                                  await handleDelete(lesson, tr);
+                               }} value={JSON.stringify(lesson)}>Delete
+                               </button>
+                           </td>
+                       </>
+                   }
                 </tr>;
              })}
              {/*if no lessons*/}

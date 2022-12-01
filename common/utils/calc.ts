@@ -2,7 +2,7 @@ import { LessonData, StudentList, StudentNames } from "../types";
 
 export const getTotalAmountForStudent = (lessons: LessonData[], student: StudentNames) => {
     return lessons.filter(lesson => lesson.student === student).reduce((acc, lesson) => {
-        return acc + (lesson.length === 45 ? 35 : lesson.length * 50 / 60);
+        return acc + (!lesson.isInPerson ? (lesson.length === 45 ? 35 : lesson.length * 50 / 60) : lesson.length);
     }, 0);
 };
 

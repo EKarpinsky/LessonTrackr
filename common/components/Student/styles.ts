@@ -12,7 +12,7 @@ export const studentContainer = css`
   padding: 20px;
   border: 1px solid #ddd;
   border-radius: 5px;
-  background-color: #6184b4;
+  background-color: #204978;
 
   @media (max-width: 1024px) {
     width: 100%;
