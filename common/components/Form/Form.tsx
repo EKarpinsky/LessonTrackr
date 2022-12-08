@@ -1,4 +1,3 @@
-// the form component
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { AvailableLengths, LessonData, StudentList, StudentNames } from "../../types";
 /** @jsxImportSource @emotion/react */
@@ -11,6 +10,17 @@ type FormProps = {
 }
 const AVAILABLE_LENGTHS: AvailableLengths[] = [30, 45, 60, 90, 120];
 
+const handleFormSubmit = (newLesson: LessonData, lessons: LessonData[], setErrorMessage: React.Dispatch<React.SetStateAction<string>>): boolean => {
+   if (lessons.some(lesson => lesson.student === newLesson.student && lesson.date === newLesson.date)) {
+      setErrorMessage('You already have a lesson scheduled for this day!');
+      return false;
+   }
+   if (!newLesson.student || !newLesson.length || !newLesson.date) {
+      setErrorMessage('Please fill out all fields!');
+      return false;
+   }
+   return true;
+}
 
 export const Form = ({ lessons, onLessonSubmit, students }: FormProps) => {
    const [student, setStudent] = useState<StudentNames>('');
@@ -28,7 +38,6 @@ export const Form = ({ lessons, onLessonSubmit, students }: FormProps) => {
       }
    }
 
-   // update the csv with the new lesson and download
    const handleSubmit = async (e: FormEvent) => {
       e.preventDefault();
       const newLesson: LessonData = {
@@ -37,28 +46,22 @@ export const Form = ({ lessons, onLessonSubmit, students }: FormProps) => {
          date,
          isInPerson
       }
-      // don't allow multiple lessons per day PER SAME STUDENT
-      if (lessons.some(lesson => lesson.student === student && lesson.date === date)) {
-         setErrorMessage('You already have a lesson scheduled for this day!');
-         return;
+      // validate the form data and submit the lesson if it is valid
+      if (handleFormSubmit(newLesson, lessons, setErrorMessage)) {
+         // add the new lesson to the lessons array using the API endpoint
+         const res = await fetch('/api/add-lesson', {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newLesson)
+         });
+         const data = await res.json();
+         onLessonSubmit(data);
+         setErrorMessage('');
       }
-      if (!student || !length || !date) {
-         setErrorMessage('Please fill out all fields!');
-         return;
-      }
-      // add the new lesson to the lessons array using epi endpoint
-      const res = await fetch('/api/add-lesson', {
-         method: 'POST',
-         headers: {
-            'Content-Type': 'application/json'
-         },
-
-         body: JSON.stringify(newLesson)
-      });
-      const data = await res.json();
-      onLessonSubmit(data);
-      setErrorMessage('');
    }
+
    return (
        <form onSubmit={handleSubmit} css={form}>
           <label>

@@ -8,7 +8,6 @@ import path from "path";
  * Gets the csv located in lessons.csv, parses it by line, and returns an array of LessonData objects
  */
 export const fetchAllLessons = (): Promise<LessonData[]> => {
-   const lessons: LessonData[] = [];
    // csv file located in common/data/[currentMonth]-[currentYear]-lessons.csv
    const date = new Date();
    const month = date.getMonth() + 1;
@@ -24,18 +23,22 @@ export const fetchAllLessons = (): Promise<LessonData[]> => {
                if (err) {
                   reject(err);
                }
-               resolve(lessons);
+               resolve([]);
             });
          }
          const lines = csv.split(`\r\n`);
-         for (let i = 1; i < lines.length; i++) {
-            const line = lines[i];
-            const [date, student, length, isInPerson] = line.split(',');
-            if (!date || !student || !length || !isInPerson) {
-               continue;
-            }
-            lessons.push({ student, length: parseInt(length), date, isInPerson: isInPerson === "true" } as LessonData);
-         }
+         const lessons = lines
+             .slice(1) // skip the first line (the heading)
+             .map((line) => {
+                const [date, student, length, isInPerson] = line.split(",");
+                return {
+                   date,
+                   student,
+                   length: parseInt(length),
+                   isInPerson: isInPerson === "true",
+                } as LessonData;
+             })
+             .filter((lesson) => lesson.date && lesson.student && lesson.length);
          // order by date from oldest to newest
          lessons.sort((a, b) => {
             const aDate = new Date(a.date);
