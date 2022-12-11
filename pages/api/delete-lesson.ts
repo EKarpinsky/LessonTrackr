@@ -3,7 +3,7 @@ import { LessonData } from "../../common/types";
 import { fetchAllLessons } from "./lessons";
 import { writeLessons } from "./add-lesson";
 
-export default function handler(
+export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse<LessonData[] | Error>
 ) {
@@ -17,7 +17,7 @@ export default function handler(
          return;
       }
       // fetch allLessons from csv file located in data/lessons.csv
-      const allLessons = fetchAllLessons();
+      const allLessons = await fetchAllLessons();
       if (!allLessons) {
          res.status(500).json(new Error("Could not fetch lessons"));
          return;

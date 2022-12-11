@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { LessonData, StudentList } from "../common/types";
 import { Student } from "../common/components/Student/Student";
 
@@ -25,9 +25,6 @@ const STUDENTS: StudentList = [
    }, {
       name: 'Ethan/Juliette',
       defaultLength: 60
-   }, {
-      name: 'Emma',
-      defaultLength: 30
    }
 ]
 
@@ -37,7 +34,7 @@ const Home = () => {
    const [lessonIdOfAddedLesson, setLessonIdOfAddedLesson] = useState<string>('');
    const [isInvoiceMode, setIsInvoiceMode] = useState<boolean>(false);
 
-   const onLessonChange = (newLessons: LessonData[]) => {
+   const onLessonChange = useCallback((newLessons: LessonData[]) => {
       if (newLessons.length > 0 && newLessons.length > lessons.length) {
          setLessonWasAdded(true);
          const newLesson = newLessons.find(lesson => {
@@ -49,7 +46,7 @@ const Home = () => {
          }
       }
       setLessons(newLessons);
-   }
+   }, []);
 
    // load existing csv file on mount
    useEffect(() => {
