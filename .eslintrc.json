@@ -1,13 +1,16 @@
 {
   "parser": "@typescript-eslint/parser",
   "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:react/recommended"
+    "prettier"
   ],
   "plugins": [
     "@typescript-eslint",
     "react",
     "@emotion",
+    "prettier",
     "@next/eslint-plugin-next"
   ],
   "rules": {
@@ -27,7 +30,8 @@
     "@emotion/no-vanilla": "error",
     "@emotion/import-from-emotion": "error",
     "@emotion/styled-import": "error",
-    "@emotion/syntax-preference": ["error", "string"]
+    "@emotion/syntax-preference": ["error", "string"],
+    "prettier/prettier": "error"
   },
   "globals": {
     "React": "writable"
